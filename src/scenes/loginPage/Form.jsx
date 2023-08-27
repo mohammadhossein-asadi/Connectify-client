@@ -8,6 +8,7 @@ import {
   useTheme,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import CircularProgress from "@mui/material/CircularProgress";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -65,6 +66,8 @@ const initialValuesLogin = {
 
 const Form = () => {
   const [pageType, setPageType] = useState("login");
+  const [loading, setLoading] = useState(false);
+  const [buttonClicked, setButtonClicked] = useState(false);
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -102,6 +105,9 @@ const Form = () => {
         body: JSON.stringify(values),
       }
     );
+
+    setLoading(false);
+
     const loggedIn = await loggedInResponse.json();
     onSubmitProps.resetForm();
     loggedIn &&
@@ -115,8 +121,16 @@ const Form = () => {
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    if (isLogin) await login(values, onSubmitProps);
-    if (isRegister) await register(values, onSubmitProps);
+    if (isLogin) {
+      setLoading(true);
+      await login(values, onSubmitProps);
+      setLoading(false);
+    }
+    if (isRegister) {
+      setButtonClicked(true);
+      await register(values, onSubmitProps);
+      setButtonClicked(false);
+    }
   };
 
   return (
@@ -292,6 +306,7 @@ const Form = () => {
           <Box>
             <Button
               fullWidth
+              disabled={loading || buttonClicked}
               type="submit"
               sx={{
                 m: "2rem 0",
@@ -301,7 +316,16 @@ const Form = () => {
                 "&:hover": { color: palette.primary.main },
               }}
             >
-              {isLogin ? "Login" : "REGISTER"}
+              {loading ? (
+                <CircularProgress
+                  size={24}
+                  sx={{ color: palette.background.alt }}
+                />
+              ) : isLogin ? (
+                "LOGIN"
+              ) : (
+                "REGISTER"
+              )}
             </Button>
             <Typography
               onClick={() => {
