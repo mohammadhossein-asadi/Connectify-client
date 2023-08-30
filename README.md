@@ -10,7 +10,7 @@ Project Overview
 - **React Router**
 - **Dropzone**
 - **Redux Toolkit**
-## Features
+# Features
 # User Registration and Authentication
 The front-end includes a user-friendly registration form built using Formik and Yup, enabling users to create accounts with ease. It integrates with the back-end's authentication system to securely store user credentials and manage login sessions.
  
