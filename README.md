@@ -31,7 +31,7 @@ To run the front-end of Connectify Social Media on your local machine, follow th
  
 - Clone the repository from GitHub.
 - Navigate to the project directory.
-- Install dependencies using npm install.
-- Run the development server with npm start.
+- Install dependencies using yarn install.
+- Run the development server with yarn dev or yarn start.
 # Conclusion
 The Connectify Social Media front-end offers a dynamic and engaging user experience through its use of cutting-edge JavaScript technologies. The seamless integration of React, Formik, Yup, and other libraries contributes to the platform's user-friendly nature, making content sharing and community interaction enjoyable for users.
