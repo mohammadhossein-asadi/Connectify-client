@@ -99,7 +99,12 @@ const MyPostWidget = ({ picturePath }) => {
                     <p>Add Image Here</p>
                   ) : (
                     <FlexBetween>
-                      <Typography>{image.name}</Typography>
+                      <Typography>
+                        {" "}
+                        {image.name.length <= 30
+                          ? image.name
+                          : `${image.name.substring(0, 30)}...`}
+                      </Typography>
                       <EditOutlined />
                     </FlexBetween>
                   )}
@@ -174,7 +179,7 @@ const MyPostWidget = ({ picturePath }) => {
         )}
 
         <Button
-          disabled={!post}
+          disabled={!post || !image}
           onClick={handlePost}
           sx={{
             color: palette.background.alt,

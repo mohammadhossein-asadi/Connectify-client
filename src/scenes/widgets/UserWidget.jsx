@@ -3,17 +3,23 @@ import {
   EditOutlined,
   LocationOnOutlined,
   WorkOutlineOutlined,
+  Check,
+  Close,
 } from "@mui/icons-material";
-import { Box, Typography, Divider, useTheme } from "@mui/material";
+import { Box, Typography, Divider, useTheme, TextField } from "@mui/material";
 import UserImage from "components/UserImage";
 import FlexBetween from "components/FlexBetween";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState(null);
+  const [editLinkedIn, setEditLinkedIn] = useState(false);
+  const [linkedinUsername, setLinkedinUsername] = useState("");
+  const [editTwitter, setEditTwitter] = useState(false);
+  const [twitterUserName, setTwitterUserName] = useState("");
   const { palette } = useTheme();
   const navigate = useNavigate();
   const token = useSelector((state) => state.token);
@@ -35,8 +41,7 @@ const UserWidget = ({ userId, picturePath }) => {
 
   useEffect(() => {
     getUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
+  }, []);
   if (!user) {
     return null;
   }
@@ -124,27 +129,112 @@ const UserWidget = ({ userId, picturePath }) => {
         <FlexBetween gap="1rem" mb="0.5rem">
           <FlexBetween gap="1rem">
             <img src="../assets/twitter.png" alt="twitter" />
-            <Box>
-              <Typography color={main} fontWeight="500">
-                Twitter
-              </Typography>
-              <Typography color={medium}>Social Network</Typography>
-            </Box>
+            {editTwitter ? (
+              <>
+                <TextField
+                  placeholder="Twitter Username"
+                  type="text"
+                  value={twitterUserName}
+                  onChange={(e) => setTwitterUserName(e.target.value)}
+                />
+                {twitterUserName && (
+                  <>
+                    <Check
+                      sx={{ color: main, cursor: "pointer" }}
+                      onClick={() => setEditTwitter(false)}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <Box>
+                {twitterUserName ? (
+                  <Link
+                    to={`https://twitter.com/${twitterUserName}`}
+                    target="_blank"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Typography color={main} fontWeight="500">
+                      Twitter
+                    </Typography>
+                  </Link>
+                ) : (
+                  <Typography color={main} fontWeight="500">
+                    Twitter
+                  </Typography>
+                )}
+                <Typography color={medium}>Social Network</Typography>
+              </Box>
+            )}
           </FlexBetween>
-          <EditOutlined sx={{ color: main, cursor: "pointer" }} />
+          {editTwitter ? (
+            <Close
+              sx={{ color: "red", cursor: "pointer" }}
+              onClick={() => {
+                setEditTwitter(false);
+                setTwitterUserName("");
+              }}
+            />
+          ) : (
+            <EditOutlined
+              sx={{ color: main, cursor: "pointer" }}
+              onClick={() => setEditTwitter(true)}
+            />
+          )}
         </FlexBetween>
 
         <FlexBetween gap="1rem">
           <FlexBetween gap="1rem">
             <img src="../assets/linkedin.png" alt="linkedin" />
-            <Box>
-              <Typography color={main} fontWeight="500">
-                Linkedin
-              </Typography>
-              <Typography color={medium}>Network Platform</Typography>
-            </Box>
+            {editLinkedIn ? (
+              <>
+                <TextField
+                  placeholder="Linkedin Username"
+                  type="text"
+                  value={linkedinUsername}
+                  onChange={(e) => setLinkedinUsername(e.target.value)}
+                />
+                {linkedinUsername && (
+                  <>
+                    <Check
+                      sx={{ color: main, cursor: "pointer" }}
+                      onClick={() => setEditLinkedIn(false)}
+                    />
+                  </>
+                )}
+              </>
+            ) : (
+              <Box>
+                {linkedinUsername ? (
+                  <Link
+                    to={`https://www.linkedin.com/in/${linkedinUsername}/`}
+                    target="_blank"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Typography color={main} fontWeight="500">
+                      Linkedin
+                    </Typography>
+                  </Link>
+                ) : (
+                  <Typography color={main} fontWeight="500">
+                    Linkedin
+                  </Typography>
+                )}
+                <Typography color={medium}>Network Platform</Typography>
+              </Box>
+            )}
           </FlexBetween>
-          <EditOutlined sx={{ color: main, cursor: "pointer" }} />
+          {editLinkedIn ? (
+            <Close
+              sx={{ color: "red", cursor: "pointer" }}
+              onClick={() => setEditLinkedIn(false)}
+            />
+          ) : (
+            <EditOutlined
+              sx={{ color: main, cursor: "pointer" }}
+              onClick={() => setEditLinkedIn(true)}
+            />
+          )}
         </FlexBetween>
       </Box>
     </WidgetWrapper>
