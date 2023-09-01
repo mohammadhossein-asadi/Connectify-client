@@ -73,7 +73,7 @@ const UserWidget = ({ userId, picturePath }) => {
               fontWeight="500"
               sx={{
                 "&:hover": {
-                  color: palette.primary.light,
+                  color: palette.primary.main,
                   cursor: "pointer",
                 },
               }}
@@ -154,8 +154,17 @@ const UserWidget = ({ userId, picturePath }) => {
                     target="_blank"
                     style={{ textDecoration: "none" }}
                   >
-                    <Typography color={main} fontWeight="500">
-                      Twitter
+                    <Typography
+                      color={main}
+                      fontWeight="500"
+                      sx={{
+                        "&:hover": {
+                          color: palette.primary.main,
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
+                      {`@${twitterUserName}`}
                     </Typography>
                   </Link>
                 ) : (
@@ -211,8 +220,17 @@ const UserWidget = ({ userId, picturePath }) => {
                     target="_blank"
                     style={{ textDecoration: "none" }}
                   >
-                    <Typography color={main} fontWeight="500">
-                      Linkedin
+                    <Typography
+                      color={main}
+                      fontWeight="500"
+                      sx={{
+                        "&:hover": {
+                          color: palette.primary.main,
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
+                      {`@${linkedinUsername}`}
                     </Typography>
                   </Link>
                 ) : (

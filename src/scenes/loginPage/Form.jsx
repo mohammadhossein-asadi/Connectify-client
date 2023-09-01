@@ -76,6 +76,7 @@ const Form = () => {
   const isRegister = pageType === "register";
 
   const register = async (values, onSubmitProps) => {
+    setLoading(true);
     // this allows to send form info with image
     const formData = new FormData();
     for (let value in values) {
@@ -94,9 +95,11 @@ const Form = () => {
     onSubmitProps.resetForm();
 
     savedUser && setPageType("login");
+    setLoading(false);
   };
 
   const login = async (values, onSubmitProps) => {
+    setLoading(true);
     const loggedInResponse = await fetch(
       "https://connectify-dn5y.onrender.com/auth/login",
       {
