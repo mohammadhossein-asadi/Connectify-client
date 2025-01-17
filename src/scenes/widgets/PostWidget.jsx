@@ -11,24 +11,28 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPost } from "../../state";
+import PropTypes from "prop-types";
 
 const PostWidget = ({
-  postId,
-  postUserId,
+  postId = "",
+  postUserId = "",
   name,
   description,
   location,
   picturePath,
   userPicturePath,
-  likes,
-  comments,
+  likes = {},
+  comments = [],
+  isPublicView = false,
 }) => {
   const [isComments, setIsComments] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.token);
-  const loggedInUserId = useSelector((state) => state.user._id);
-  const isLiked = Boolean(likes[loggedInUserId]);
-  const likeCount = Object.keys(likes).length;
+  const user = useSelector((state) => state.user);
+  const loggedInUserId = user?._id;
+  const isLiked =
+    !isPublicView && loggedInUserId && Boolean(likes[loggedInUserId]);
+  const likeCount = Object.keys(likes || {}).length;
 
   const { palette } = useTheme();
   const main = palette.neutral.main;
@@ -57,23 +61,36 @@ const PostWidget = ({
         name={name}
         subtitle={location}
         userPicturePath={userPicturePath}
+        isPublicView={isPublicView}
       />
       <Typography color={main} sx={{ mt: "1rem" }}>
         {description}
       </Typography>
       {picturePath && (
         <img
-          src={`https://connectify-dn5y.onrender.com/assets/${picturePath}`}
+          src={
+            picturePath.startsWith("http")
+              ? picturePath
+              : `${import.meta.env.VITE_APP_BASE_URL}/assets/${picturePath}`
+          }
           alt="post"
-          width={"100%"}
-          height={"auto"}
-          style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
+          width="100%"
+          height="auto"
+          style={{
+            borderRadius: "0.75rem",
+            marginTop: "0.75rem",
+            objectFit: "cover",
+          }}
         />
       )}
       <FlexBetween mt={"0.25rem"}>
         <FlexBetween gap={"1rem"}>
           <FlexBetween gap={"0.3rem"}>
-            <IconButton onClick={patchLike}>
+            <IconButton
+              onClick={patchLike}
+              disabled={isPublicView}
+              title={isPublicView ? "Login to like posts" : ""}
+            >
               {isLiked ? (
                 <FavoriteOutlined sx={{ color: primary }} />
               ) : (
@@ -84,7 +101,11 @@ const PostWidget = ({
           </FlexBetween>
 
           <FlexBetween gap={"0.3rem"}>
-            <IconButton onClick={() => setIsComments(!isComments)}>
+            <IconButton
+              onClick={() => setIsComments(!isComments)}
+              disabled={isPublicView}
+              title={isPublicView ? "Login to view comments" : ""}
+            >
               <ChatBubbleOutlineOutlined />
             </IconButton>
             <Typography>{comments.length}</Typography>
@@ -110,6 +131,19 @@ const PostWidget = ({
       )}
     </WidgetWrapper>
   );
+};
+
+PostWidget.propTypes = {
+  postId: PropTypes.string,
+  postUserId: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  location: PropTypes.string.isRequired,
+  picturePath: PropTypes.string,
+  userPicturePath: PropTypes.string,
+  likes: PropTypes.object,
+  comments: PropTypes.array,
+  isPublicView: PropTypes.bool,
 };
 
 export default PostWidget;

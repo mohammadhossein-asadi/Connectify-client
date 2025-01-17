@@ -5,13 +5,21 @@ import { useNavigate } from "react-router-dom";
 import { setFriends } from "../state";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
+import PropTypes from "prop-types";
 
-const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
+const Friend = ({
+  friendId = "",
+  name,
+  subtitle,
+  userPicturePath,
+  isPublicView = false,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { _id } = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user);
   const token = useSelector((state) => state.token);
-  const friends = useSelector((state) => state.user.friends);
+  const friends = user?.friends || [];
+  const _id = user?._id;
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -22,6 +30,8 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   const isFriend = friends.find((friend) => friend._id === friendId);
 
   const patchFriend = async () => {
+    if (!_id || !token) return;
+
     const response = await fetch(
       `https://connectify-dn5y.onrender.com/users/${_id}/${friendId}`,
       {
@@ -39,11 +49,16 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
   return (
     <FlexBetween>
       <FlexBetween gap="1rem">
-        <UserImage image={userPicturePath} size="55px" />
+        <UserImage
+          image={userPicturePath}
+          isExternalImage={userPicturePath?.startsWith("http")}
+        />
         <Box
           onClick={() => {
-            navigate(`/profile/${friendId}`);
-            navigate(0);
+            if (!isPublicView) {
+              navigate(`/profile/${friendId}`);
+              navigate(0);
+            }
           }}
         >
           <Typography
@@ -52,8 +67,8 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
             fontWeight="500"
             sx={{
               "&:hover": {
-                color: palette.primary.light,
-                cursor: "pointer",
+                color: !isPublicView ? palette.primary.light : "inherit",
+                cursor: !isPublicView ? "pointer" : "default",
               },
             }}
           >
@@ -64,18 +79,35 @@ const Friend = ({ friendId, name, subtitle, userPicturePath }) => {
           </Typography>
         </Box>
       </FlexBetween>
-      <IconButton
-        onClick={() => patchFriend()}
-        sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
-      >
-        {isFriend ? (
-          <PersonRemoveOutlined sx={{ color: primaryDark }} />
-        ) : (
-          <PersonAddOutlined sx={{ color: primaryDark }} />
-        )}
-      </IconButton>
+      {!isPublicView && (
+        <IconButton
+          onClick={() => patchFriend()}
+          sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
+        >
+          {isFriend ? (
+            <PersonRemoveOutlined sx={{ color: primaryDark }} />
+          ) : (
+            <PersonAddOutlined sx={{ color: primaryDark }} />
+          )}
+        </IconButton>
+      )}
     </FlexBetween>
   );
+};
+
+Friend.propTypes = {
+  friendId: PropTypes.string,
+  name: PropTypes.string.isRequired,
+  subtitle: PropTypes.string,
+  userPicturePath: PropTypes.string,
+  isPublicView: PropTypes.bool,
+};
+
+Friend.defaultProps = {
+  friendId: "",
+  subtitle: "",
+  userPicturePath: "",
+  isPublicView: false,
 };
 
 export default Friend;

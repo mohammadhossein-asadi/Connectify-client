@@ -61,7 +61,7 @@ const ProfilePage = () => {
               <Box m={"2rem 0"} />
             </>
           )}
-          <PostsWidget userId={userId} isProfile={!isCurrentUser} />
+          <PostsWidget userId={userId} isProfile={true} />
         </Box>
       </Box>
     </Box>

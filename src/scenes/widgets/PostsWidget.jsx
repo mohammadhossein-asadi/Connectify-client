@@ -1,44 +1,97 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPosts } from "../../state";
 import PostWidget from "./PostWidget";
+import PostSkeleton from "components/PostSkeleton";
+import { Typography } from "@mui/material";
 
 const PostsWidget = ({ userId, isProfile = false }) => {
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts);
   const token = useSelector((state) => state.token);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const getPosts = async () => {
-    const response = await fetch("https://connectify-dn5y.onrender.com/posts", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json();
-    dispatch(setPosts({ posts: data }));
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/posts`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      dispatch(setPosts({ posts: data }));
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("Failed to load posts");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getUserPosts = async () => {
-    const response = await fetch(
-      `https://connectify-dn5y.onrender.com/posts/${userId}/posts`,
-      {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/posts/${userId}/posts`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    );
-    const data = await response.json();
-    dispatch(setPosts({ posts: data }));
+
+      const data = await response.json();
+      dispatch(setPosts({ posts: data }));
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+      setError("Failed to load user posts");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    isProfile ? getUserPosts() : getPosts();
-  }, []);
+    if (isProfile) {
+      getUserPosts();
+    } else {
+      getPosts();
+    }
+  }, [userId, isProfile]);
+
+  if (loading) {
+    return (
+      <>
+        {[1, 2, 3].map((n) => (
+          <PostSkeleton key={n} />
+        ))}
+      </>
+    );
+  }
+
+  if (error) {
+    return <Typography color="error">{error}</Typography>;
+  }
 
   return (
     <>
       {posts.map(
         ({
           _id,
-          userId,
+          userId: postUserId,
           firstName,
           lastName,
           description,
@@ -51,7 +104,7 @@ const PostsWidget = ({ userId, isProfile = false }) => {
           <PostWidget
             key={_id}
             postId={_id}
-            postUserId={userId}
+            postUserId={postUserId}
             name={`${firstName} ${lastName}`}
             description={description}
             location={location}

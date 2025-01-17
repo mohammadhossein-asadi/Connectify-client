@@ -4,11 +4,11 @@ import {
   Button,
   TextField,
   Typography,
-  useMediaQuery,
   useTheme,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import CircularProgress from "@mui/material/CircularProgress";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
@@ -64,75 +64,98 @@ const initialValuesLogin = {
   password: "",
 };
 
-const Form = () => {
-  const [pageType, setPageType] = useState("login");
-  const [loading, setLoading] = useState(false);
-  const [buttonClicked, setButtonClicked] = useState(false);
+const Form = ({ pageType, setPageType }) => {
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isNonMobile = useMediaQuery("(min-width: 600px)");
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const register = async (values, onSubmitProps) => {
-    setLoading(true);
-    // this allows to send form info with image
-    const formData = new FormData();
-    for (let value in values) {
-      formData.append(value, values[value]);
-    }
-    formData.append("picturePath", values.picture.name);
-
-    const savedUserResponse = await fetch(
-      "https://connectify-dn5y.onrender.com/auth/register",
-      {
-        method: "POST",
-        body: formData,
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      for (let value in values) {
+        formData.append(value, values[value]);
       }
-    );
-    const savedUser = await savedUserResponse.json();
-    onSubmitProps.resetForm();
+      if (values.picture) {
+        formData.append("picturePath", values.picture.name);
+      }
 
-    savedUser && setPageType("login");
-    setLoading(false);
+      const savedUserResponse = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/auth/register`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const savedUser = await savedUserResponse.json();
+      onSubmitProps.resetForm();
+
+      if (savedUser) {
+        setPageType("login");
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   const login = async (values, onSubmitProps) => {
-    setLoading(true);
-    const loggedInResponse = await fetch(
-      "https://connectify-dn5y.onrender.com/auth/login",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      }
-    );
-
-    setLoading(false);
-
-    const loggedIn = await loggedInResponse.json();
-    onSubmitProps.resetForm();
-    loggedIn &&
-      dispatch(
-        setLogin({
-          user: loggedIn.user,
-          token: loggedIn.token,
-        })
+    try {
+      setError(""); // Clear previous errors
+      const loggedInResponse = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        }
       );
-    navigate("/home");
+
+      const loggedIn = await loggedInResponse.json();
+
+      if (!loggedInResponse.ok) {
+        setError(loggedIn.msg || "Invalid email or password");
+        return;
+      }
+
+      if (loggedIn.user) {
+        dispatch(
+          setLogin({
+            user: loggedIn.user,
+            token: loggedIn.token,
+          })
+        );
+        onSubmitProps.resetForm();
+        navigate("/home");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      setError("Something went wrong. Please try again later.");
+    }
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    if (isLogin) {
-      setLoading(true);
-      await login(values, onSubmitProps);
-      setLoading(false);
-    }
-    if (isRegister) {
-      setButtonClicked(true);
-      await register(values, onSubmitProps);
-      setButtonClicked(false);
+    setLoading(true); // Start loading
+    try {
+      if (isLogin) {
+        const loggedIn = await login(values, onSubmitProps);
+        if (loggedIn) {
+          navigate("/home");
+        }
+      } else {
+        const registered = await register(values, onSubmitProps);
+        if (registered) {
+          setPageType("login");
+        }
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+    } finally {
+      setLoading(false); // Stop loading regardless of outcome
     }
   };
 
@@ -153,14 +176,17 @@ const Form = () => {
         resetForm,
       }) => (
         <form onSubmit={handleSubmit}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
+              {error}
+            </Alert>
+          )}
           <Box
-            display={"grid"}
-            gap={"30px"}
-            gridTemplateColumns={"repeat(4, minmax(0, 1fr))"}
+            display="grid"
+            gap="30px"
+            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
             sx={{
-              "& > div": {
-                gridColumn: isNonMobile ? undefined : "span 4",
-              },
+              "& > div": { gridColumn: "span 4" },
             }}
           >
             {isRegister ? (
@@ -309,21 +335,52 @@ const Form = () => {
           <Box>
             <Button
               fullWidth
-              disabled={loading || buttonClicked}
               type="submit"
+              disabled={loading}
               sx={{
                 m: "2rem 0",
                 p: "1rem",
                 backgroundColor: palette.primary.main,
                 color: palette.background.alt,
                 "&:hover": { color: palette.primary.main },
+                "&:disabled": {
+                  backgroundColor: palette.primary.light,
+                  color: palette.background.alt,
+                },
+                position: "relative",
               }}
             >
               {loading ? (
-                <CircularProgress
-                  size={24}
-                  sx={{ color: palette.background.alt }}
-                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                  }}
+                >
+                  {[0, 1, 2].map((index) => (
+                    <Box
+                      key={index}
+                      component="span"
+                      sx={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        backgroundColor: "currentColor",
+                        display: "inline-block",
+                        animation: "dotAnimation 1.4s ease-in-out infinite",
+                        animationDelay: `${index * 0.16}s`,
+                        "@keyframes dotAnimation": {
+                          "0%": { transform: "scale(0)" },
+                          "40%": { transform: "scale(1)" },
+                          "80%": { transform: "scale(0)" },
+                          "100%": { transform: "scale(0)" },
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
               ) : isLogin ? (
                 "LOGIN"
               ) : (
@@ -331,14 +388,14 @@ const Form = () => {
               )}
             </Button>
             <Typography
-              onClick={() => {
-                setPageType(isLogin ? "register" : "login");
-                resetForm();
-              }}
+              onClick={() => setPageType(isLogin ? "register" : "login")}
               sx={{
                 textDecoration: "underline",
                 color: palette.primary.main,
-                "&:hover": { cursor: "pointer", color: palette.primary.main },
+                "&:hover": {
+                  cursor: "pointer",
+                  color: palette.primary.light,
+                },
               }}
             >
               {isLogin

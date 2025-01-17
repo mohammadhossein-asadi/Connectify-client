@@ -5,6 +5,7 @@ const initialState = {
   user: null,
   token: null,
   posts: [],
+  isPublicView: true,
 };
 
 export const authSlice = createSlice({
@@ -17,10 +18,12 @@ export const authSlice = createSlice({
     setLogin: (state, action) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
+      state.isPublicView = false;
     },
     setLogout: (state) => {
       state.user = null;
       state.token = null;
+      state.isPublicView = true;
     },
     setFriends: (state, action) => {
       state.user
@@ -37,9 +40,19 @@ export const authSlice = createSlice({
       });
       state.posts = updatedPosts;
     },
+    setPublicView: (state, action) => {
+      state.isPublicView = action.payload;
+    },
   },
 });
 
-export const { setMode, setLogin, setLogout, setFriends, setPosts, setPost } =
-  authSlice.actions;
+export const {
+  setMode,
+  setLogin,
+  setLogout,
+  setFriends,
+  setPosts,
+  setPost,
+  setPublicView,
+} = authSlice.actions;
 export default authSlice.reducer;
