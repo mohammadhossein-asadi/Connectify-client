@@ -3,6 +3,8 @@ const API_CONFIG = {
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
+    "Access-Control-Allow-Origin": "https://connectifysocial.vercel.app",
+    "Access-Control-Allow-Credentials": "true",
   },
   credentials: "include",
 };
@@ -11,27 +13,29 @@ export const fetchWithConfig = async (endpoint, options = {}) => {
   const isFormData = options.body instanceof FormData;
   const headers = isFormData ? {} : API_CONFIG.headers;
 
-  const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...headers,
-      ...options.headers,
-    },
-    credentials: API_CONFIG.credentials,
-    mode: "cors",
-  });
+  try {
+    const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
+      ...options,
+      headers: {
+        ...headers,
+        ...options.headers,
+      },
+      credentials: API_CONFIG.credentials,
+      mode: "cors",
+    });
 
-  if (!response.ok) {
-    let error;
-    try {
-      error = await response.json();
-    } catch (e) {
-      throw new Error("Network response was not ok");
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: `HTTP error! status: ${response.status}`,
+      }));
+      throw new Error(error.message || "API request failed");
     }
-    throw new Error(error.message || "API request failed");
-  }
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    console.error(`API Error (${endpoint}):`, error);
+    throw error;
+  }
 };
 
 export default API_CONFIG;
