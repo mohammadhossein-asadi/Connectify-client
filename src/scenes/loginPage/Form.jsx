@@ -6,7 +6,6 @@ import {
   Typography,
   useTheme,
   Alert,
-  CircularProgress,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import { Formik } from "formik";
@@ -16,6 +15,8 @@ import { useDispatch } from "react-redux";
 import { setLogin } from "../../state";
 import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
+import PropTypes from "prop-types";
+import { fetchWithConfig } from "../../config/api";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -56,7 +57,7 @@ const initialValuesRegister = {
   confirmPassword: "",
   location: "",
   occupation: "",
-  picture: "",
+  picture: null,
 };
 
 const initialValuesLogin = {
@@ -75,7 +76,7 @@ const Form = ({ pageType, setPageType }) => {
 
   const register = async (values, onSubmitProps) => {
     try {
-      // Create FormData for file upload
+      setLoading(true);
       const formData = new FormData();
       for (let value in values) {
         formData.append(value, values[value]);
@@ -84,49 +85,37 @@ const Form = ({ pageType, setPageType }) => {
         formData.append("picturePath", values.picture.name);
       }
 
-      const savedUserResponse = await fetch(
-        `${import.meta.env.VITE_APP_BASE_URL}/auth/register`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const data = await fetchWithConfig("/auth/register", {
+        method: "POST",
+        headers: {}, // Let FormData set its own headers
+        body: formData,
+      });
 
-      const savedUser = await savedUserResponse.json();
       onSubmitProps.resetForm();
-
-      if (savedUser) {
-        setPageType("login");
-      }
+      setPageType("login");
     } catch (error) {
       console.error("Registration failed:", error);
+      setError(error.message || "Network error. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const login = async (values, onSubmitProps) => {
     try {
-      setError(""); // Clear previous errors
-      const loggedInResponse = await fetch(
-        `${import.meta.env.VITE_APP_BASE_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
-      );
+      setError("");
+      setLoading(true);
 
-      const loggedIn = await loggedInResponse.json();
+      const data = await fetchWithConfig("/auth/login", {
+        method: "POST",
+        body: JSON.stringify(values),
+      });
 
-      if (!loggedInResponse.ok) {
-        setError(loggedIn.msg || "Invalid email or password");
-        return;
-      }
-
-      if (loggedIn.user) {
+      if (data.user) {
         dispatch(
           setLogin({
-            user: loggedIn.user,
-            token: loggedIn.token,
+            user: data.user,
+            token: data.token,
           })
         );
         onSubmitProps.resetForm();
@@ -134,28 +123,21 @@ const Form = ({ pageType, setPageType }) => {
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setError("Something went wrong. Please try again later.");
+      setError(error.message || "Network error. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleFormSubmit = async (values, onSubmitProps) => {
-    setLoading(true); // Start loading
     try {
       if (isLogin) {
-        const loggedIn = await login(values, onSubmitProps);
-        if (loggedIn) {
-          navigate("/home");
-        }
+        await login(values, onSubmitProps);
       } else {
-        const registered = await register(values, onSubmitProps);
-        if (registered) {
-          setPageType("login");
-        }
+        await register(values, onSubmitProps);
       }
     } catch (error) {
       console.error("Form submission error:", error);
-    } finally {
-      setLoading(false); // Stop loading regardless of outcome
     }
   };
 
@@ -236,10 +218,10 @@ const Form = ({ pageType, setPageType }) => {
                   sx={{ gridColumn: "span 4" }}
                 />
                 <Box
-                  gridColumn={"span 4"}
+                  gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}
-                  borderRadius={"5px"}
-                  p={"1rem"}
+                  borderRadius="5px"
+                  p="1rem"
                 >
                   <Dropzone
                     acceptedFiles=".jpg,.jpeg,.png"
@@ -252,7 +234,7 @@ const Form = ({ pageType, setPageType }) => {
                       <Box
                         {...getRootProps()}
                         border={`2px dashed ${palette.primary.main}`}
-                        p={"1rem"}
+                        p="1rem"
                         sx={{ "&:hover": { cursor: "pointer" } }}
                       >
                         <input {...getInputProps()} />
@@ -268,70 +250,47 @@ const Form = ({ pageType, setPageType }) => {
                     )}
                   </Dropzone>
                 </Box>
-                <TextField
-                  label="Email"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.email}
-                  name="email"
-                  error={Boolean(touched.email) && Boolean(errors.email)}
-                  helperText={touched.email && errors.email}
-                  sx={{ gridColumn: "span 4" }}
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.password}
-                  name="password"
-                  error={Boolean(touched.password) && Boolean(errors.password)}
-                  helperText={touched.password && errors.password}
-                  sx={{ gridColumn: "span 4" }}
-                />
-                <TextField
-                  label="Confirm Password"
-                  type="password"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.confirmPassword}
-                  name="confirmPassword"
-                  error={
-                    Boolean(touched.confirmPassword) &&
-                    Boolean(errors.confirmPassword)
-                  }
-                  helperText={touched.confirmPassword && errors.confirmPassword}
-                  sx={{ gridColumn: "span 4" }}
-                />
               </>
-            ) : (
-              <>
-                <TextField
-                  label="Email"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.email}
-                  name="email"
-                  error={Boolean(touched.email) && Boolean(errors.email)}
-                  helperText={touched.email && errors.email}
-                  sx={{ gridColumn: "span 4" }}
-                />
-                <TextField
-                  label="Password"
-                  type="password"
-                  onBlur={handleBlur}
-                  onChange={handleChange}
-                  value={values.password}
-                  name="password"
-                  error={Boolean(touched.password) && Boolean(errors.password)}
-                  helperText={touched.password && errors.password}
-                  sx={{ gridColumn: "span 4" }}
-                />
-              </>
+            ) : null}
+            <TextField
+              label="Email"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.email}
+              name="email"
+              error={Boolean(touched.email) && Boolean(errors.email)}
+              helperText={touched.email && errors.email}
+              sx={{ gridColumn: "span 4" }}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              onBlur={handleBlur}
+              onChange={handleChange}
+              value={values.password}
+              name="password"
+              error={Boolean(touched.password) && Boolean(errors.password)}
+              helperText={touched.password && errors.password}
+              sx={{ gridColumn: "span 4" }}
+            />
+            {isRegister && (
+              <TextField
+                label="Confirm Password"
+                type="password"
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.confirmPassword}
+                name="confirmPassword"
+                error={
+                  Boolean(touched.confirmPassword) &&
+                  Boolean(errors.confirmPassword)
+                }
+                helperText={touched.confirmPassword && errors.confirmPassword}
+                sx={{ gridColumn: "span 4" }}
+              />
             )}
           </Box>
 
-          {/* BUTTONS */}
           <Box>
             <Button
               fullWidth
@@ -407,6 +366,11 @@ const Form = ({ pageType, setPageType }) => {
       )}
     </Formik>
   );
+};
+
+Form.propTypes = {
+  pageType: PropTypes.oneOf(["login", "register"]).isRequired,
+  setPageType: PropTypes.func.isRequired,
 };
 
 export default Form;
