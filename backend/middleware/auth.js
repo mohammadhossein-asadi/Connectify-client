@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const verifyToken = (req, res, next) => {
+export const verifyToken = async (req, res, next) => {
   try {
     // Public routes don't need authentication
     if (req.path === "/posts" && req.method === "GET") {
