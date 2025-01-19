@@ -3,31 +3,36 @@ const API_CONFIG = {
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "Access-Control-Allow-Origin": "https://connectify-dn5y.onrender.com",
-    "Access-Control-Allow-Credentials": "true",
   },
-  credentials: "include",
 };
 
 export const fetchWithConfig = async (endpoint, options = {}) => {
+  const token = localStorage.getItem("token");
   const isFormData = options.body instanceof FormData;
-  const headers = isFormData ? {} : API_CONFIG.headers;
+
+  const headers = {
+    ...(!isFormData && API_CONFIG.headers),
+    ...(token && { Authorization: `Bearer ${token}` }),
+    ...options.headers,
+  };
 
   try {
     const response = await fetch(`${API_CONFIG.baseURL}${endpoint}`, {
       ...options,
-      headers: {
-        ...headers,
-        ...options.headers,
-      },
-      credentials: API_CONFIG.credentials,
-      mode: "cors",
+      headers,
+      credentials: "include",
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
         message: `HTTP error! status: ${response.status}`,
       }));
+
+      // Handle token expiration
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+      }
+
       throw new Error(error.message || "API request failed");
     }
 

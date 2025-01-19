@@ -106,28 +106,43 @@ const Form = ({ pageType, setPageType }) => {
       setError("");
       setLoading(true);
 
-      const data = await fetchWithConfig("/auth/login", {
-        method: "POST",
-        body: JSON.stringify(values),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
 
-      if (data.user) {
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      if (data.token && data.user) {
+        // Store token in localStorage
         localStorage.setItem("token", data.token);
+
+        // Update Redux state
         dispatch(
           setLogin({
             user: data.user,
             token: data.token,
           })
         );
+
         onSubmitProps.resetForm();
         navigate("/home");
+      } else {
+        throw new Error("Invalid response from server");
       }
     } catch (error) {
       console.error("Login error:", error);
-      setError(error.message || "Network error. Please try again later.");
+      setError(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
