@@ -94,24 +94,37 @@ const PublicPostsWidget = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const getPosts = async () => {
-    setLoading(true);
+  const fetchPosts = async () => {
+    const token = localStorage.getItem("token");
+    console.log("Token retrieved:", token);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_APP_BASE_URL}/posts`,
+        "https://connectify-dn5y.onrender.com/posts",
         {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (!response.ok) {
-        // Show welcome content when posts can't be fetched
-        dispatch(setPosts({ posts: WELCOME_POSTS }));
-        return;
+        throw new Error(`Error fetching posts: ${response.statusText}`);
       }
 
       const data = await response.json();
+      return data; // Return the fetched posts
+    } catch (error) {
+      console.error("Fetch posts error:", error);
+      // Handle error appropriately
+    }
+  };
+
+  const getPosts = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchPosts();
       if (!data || data.length === 0) {
         setError("No posts available at the moment. Be the first to share!");
       } else {
