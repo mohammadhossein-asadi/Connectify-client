@@ -12,7 +12,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://connectifysocial.vercel.app"
+          "value": "https://connectify-dn5y.onrender.com"
         },
         {
           "key": "Access-Control-Allow-Methods",
@@ -38,7 +38,7 @@
       "src": "/(.*)",
       "methods": ["OPTIONS"],
       "headers": {
-        "Access-Control-Allow-Origin": "https://connectifysocial.vercel.app",
+        "Access-Control-Allow-Origin": "https://connectify-dn5y.onrender.com",
         "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
         "Access-Control-Allow-Headers": "*",
         "Access-Control-Allow-Credentials": "true",
@@ -48,7 +48,7 @@
     {
       "src": "/auth/(.*)",
       "headers": {
-        "Access-Control-Allow-Origin": "https://connectifysocial.vercel.app",
+        "Access-Control-Allow-Origin": "https://connectify-dn5y.onrender.com",
         "Access-Control-Allow-Credentials": "true"
       }
     },

@@ -3,7 +3,7 @@ const API_CONFIG = {
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "Access-Control-Allow-Origin": "https://connectifysocial.vercel.app",
+    "Access-Control-Allow-Origin": "https://connectify-dn5y.onrender.com",
     "Access-Control-Allow-Credentials": "true",
   },
   credentials: "include",
