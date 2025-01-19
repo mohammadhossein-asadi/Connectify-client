@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setPosts } from "../../state";
 import PostWidget from "./PostWidget";
 import PostSkeleton from "components/PostSkeleton";
 import { Box, Typography, Button } from "@mui/material";
@@ -10,137 +8,152 @@ const WELCOME_POSTS = [
   {
     _id: "welcome1",
     userId: {
-      _id: "guest",
+      _id: "connectify_team",
       firstName: "Connectify",
       lastName: "Team",
-      picturePath: "",
+      picturePath:
+        "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=500",
     },
-    description: "Welcome to Connectify! Join our community to:",
+    description:
+      "Welcome to Connectify! 🌟 We're excited to have you here. Our platform is designed to help you connect, share, and engage with amazing people from around the world. Start exploring and sharing your story today!",
     location: "Global",
-    picturePath: "",
-    likes: {},
-    comments: [],
-  },
-  {
-    _id: "welcome2",
-    userId: {
-      _id: "guest",
-      firstName: "Connectify",
-      lastName: "Features",
-      picturePath: "",
-    },
-    description:
-      "✨ Share your stories\n🤝 Connect with friends\n💬 Engage in discussions\n❤️ Like and comment on posts",
-    location: "Features",
-    picturePath: "",
-    likes: {},
-    comments: [],
-  },
-  {
-    _id: "nature1",
-    userId: {
-      _id: "nature_enthusiast",
-      firstName: "Sarah",
-      lastName: "Parker",
-      picturePath: "https://picsum.photos/seed/sarah/200",
-    },
-    description:
-      "Just witnessed this breathtaking sunset at Yosemite National Park! 🌅 Nature's beauty never fails to amaze me. Who else loves chasing sunsets? #NaturePhotography #Wanderlust",
-    location: "Yosemite, CA",
-    picturePath: "https://picsum.photos/seed/sunset/800/600",
-    likes: { user1: true, user2: true, user3: true },
-    comments: ["Stunning view! 😍", "This is absolutely magical!"],
-  },
-  {
-    _id: "tech1",
-    userId: {
-      _id: "tech_lover",
-      firstName: "Alex",
-      lastName: "Chen",
-      picturePath: "https://picsum.photos/seed/alex/200",
-    },
-    description:
-      "Just got my hands on the latest Tesla Model S Plaid! The future of automotive technology is here. Zero to 60 in under 2 seconds is absolutely mind-blowing! 🚗⚡ #TeslaLife #ElectricVehicles",
-    location: "Silicon Valley",
-    picturePath: "https://picsum.photos/seed/tesla/800/600",
-    likes: { user4: true, user5: true },
-    comments: ["Dream car! 🔥", "Congratulations! Those specs are incredible"],
+    picturePath:
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200",
+    likes: { user1: true, user2: true },
+    comments: ["Excited to be here!", "Great platform!"],
   },
   {
     _id: "travel1",
     userId: {
-      _id: "wanderlust",
-      firstName: "Emma",
-      lastName: "Wilson",
-      picturePath: "https://picsum.photos/seed/emma/200",
+      _id: "sarah_explorer",
+      firstName: "Sarah",
+      lastName: "Chen",
+      picturePath:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500",
     },
     description:
-      "Lost in the magical streets of Santorini 🇬🇷 The white buildings, blue domes, and stunning sea views make this place feel like a dream. Who's been here? Share your favorite spots! #TravelDreams #Greece",
-    location: "Santorini, Greece",
-    picturePath: "https://picsum.photos/seed/santorini/800/600",
-    likes: { user7: true, user8: true, user9: true, user10: true },
-    comments: [
-      "Paradise on Earth! 🌊",
-      "The colors are incredible!",
-      "Adding this to my bucket list ✈️",
-    ],
+      "Just witnessed the most breathtaking sunset in Bali! 🌅 The way the colors reflect off the ocean is pure magic. Sometimes the best moments are the unplanned ones. #TravelDiary #BaliLife",
+    location: "Bali, Indonesia",
+    picturePath:
+      "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1200",
+    likes: { user3: true, user4: true },
+    comments: ["Paradise found! 😍", "The colors are incredible!"],
+  },
+  {
+    _id: "fitness1",
+    userId: {
+      _id: "marcus_fit",
+      firstName: "Marcus",
+      lastName: "Johnson",
+      picturePath:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500",
+    },
+    description:
+      "Morning workout complete! 💪 Remember, fitness is not about being better than someone else, it's about being better than you used to be. Start your journey today! #FitnessMotivation #HealthyLifestyle",
+    location: "Los Angeles, USA",
+    picturePath:
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200",
+    likes: { user5: true, user6: true },
+    comments: ["This is inspiring!", "Thanks for the motivation 🏃‍♂️"],
+  },
+  {
+    _id: "art1",
+    userId: {
+      _id: "emma_artist",
+      firstName: "Emma",
+      lastName: "Garcia",
+      picturePath:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=500",
+    },
+    description:
+      "Latest artwork finished! 🎨 Exploring the intersection of nature and urban life through watercolors. Art has the power to bridge worlds and tell stories. What story do you see? #ArtistOnSocial #Watercolor",
+    location: "Barcelona, Spain",
+    picturePath:
+      "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=1200",
+    likes: { user7: true, user8: true },
+    comments: ["Beautiful work!", "The colors are amazing 😍"],
+  },
+  {
+    _id: "food1",
+    userId: {
+      _id: "chef_david",
+      firstName: "David",
+      lastName: "Kim",
+      picturePath:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500",
+    },
+    description:
+      "Sunday brunch done right! 🍳 Homemade avocado toast with poached eggs and microgreens. Food tastes better when shared with friends. #BrunchGoals #FoodLover",
+    location: "Melbourne, Australia",
+    picturePath:
+      "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=1200",
+    likes: { user9: true, user10: true },
+    comments: ["Looks delicious!", "Recipe please! 🙏"],
+  },
+  {
+    _id: "music1",
+    userId: {
+      _id: "lisa_musician",
+      firstName: "Lisa",
+      lastName: "Taylor",
+      picturePath:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500",
+    },
+    description:
+      "Music is the universal language of mankind 🎵 Just finished recording a new acoustic cover. Can't wait to share it with you all! #MusicLife #AcousticCover",
+    location: "London, UK",
+    picturePath:
+      "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1200",
+    likes: { user11: true, user12: true },
+    comments: ["Beautiful setup!", "Can't wait to hear it 🎸"],
+  },
+  {
+    _id: "nature1",
+    userId: {
+      _id: "alex_nature",
+      firstName: "Alex",
+      lastName: "Rivera",
+      picturePath:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500",
+    },
+    description:
+      "Found this hidden waterfall after a 3-hour hike! 🏞️ Nature never ceases to amaze me. Sometimes you have to get lost to find the most beautiful places. #NatureLover #Hiking",
+    location: "Costa Rica",
+    picturePath:
+      "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1200",
+    likes: { user13: true, user14: true },
+    comments: ["Paradise! 😍", "Adding this to my bucket list!"],
+  },
+  {
+    _id: "tech1",
+    userId: {
+      _id: "maya_tech",
+      firstName: "Maya",
+      lastName: "Patel",
+      picturePath:
+        "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=500",
+    },
+    description:
+      "Just launched my first AI project! 🚀 Technology has the power to make our lives better. Excited to share more about this journey. #TechInnovation #AI",
+    location: "Singapore",
+    picturePath:
+      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1200",
+    likes: { user15: true, user16: true },
+    comments: ["This is amazing!", "Future is here 🤖"],
   },
 ];
 
 const PublicPostsWidget = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const posts = useSelector((state) => state.posts);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchPosts = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const response = await fetch(
-        "https://connectify-server-lzjj.onrender.com/posts",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Error fetching posts: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data; // Return the fetched posts
-    } catch (error) {
-      console.error("Fetch posts error:", error);
-      // Handle error appropriately
-    }
-  };
-
-  const getPosts = async () => {
-    setLoading(true);
-    try {
-      const data = await fetchPosts();
-      if (!data || data.length === 0) {
-        setError("No posts available at the moment. Be the first to share!");
-      } else {
-        dispatch(setPosts({ posts: data }));
-      }
-    } catch (err) {
-      console.error("Error fetching posts:", err);
-      // Don't show error to user, show welcome content instead
-      dispatch(setPosts({ posts: WELCOME_POSTS }));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    getPosts();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // Simulate loading
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
@@ -152,27 +165,9 @@ const PublicPostsWidget = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Box textAlign="center" p={3}>
-        <Typography variant="h6" gutterBottom>
-          {error}
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/register")}
-          sx={{ mt: 2 }}
-        >
-          Join Now
-        </Button>
-      </Box>
-    );
-  }
-
   return (
     <>
-      {posts.map(
+      {WELCOME_POSTS.map(
         ({
           _id,
           userId,
@@ -185,16 +180,14 @@ const PublicPostsWidget = () => {
           <PostWidget
             key={_id}
             postId={_id}
-            postUserId={userId._id || "guest"}
-            name={`${userId?.firstName || "Guest"} ${
-              userId?.lastName || "User"
-            }`}
+            postUserId={userId._id}
+            name={`${userId.firstName} ${userId.lastName}`}
             description={description}
             location={location}
             picturePath={picturePath}
-            userPicturePath={userId?.picturePath || ""}
-            likes={likes || {}}
-            comments={comments || []}
+            userPicturePath={userId.picturePath}
+            likes={likes}
+            comments={comments}
             isPublicView={true}
           />
         )

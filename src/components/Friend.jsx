@@ -8,7 +8,7 @@ import UserImage from "./UserImage";
 import PropTypes from "prop-types";
 
 const Friend = ({
-  friendId = "",
+  friendId,
   name,
   subtitle,
   userPicturePath,
@@ -16,10 +16,9 @@ const Friend = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
+  const { _id } = useSelector((state) => state.user) || {};
   const token = useSelector((state) => state.token);
-  const friends = user?.friends || [];
-  const _id = user?._id;
+  const friends = useSelector((state) => state.user?.friends) || [];
 
   const { palette } = useTheme();
   const primaryLight = palette.primary.light;
@@ -27,23 +26,35 @@ const Friend = ({
   const main = palette.neutral.main;
   const medium = palette.neutral.medium;
 
-  const isFriend = friends.find((friend) => friend._id === friendId);
+  const isFriend =
+    Array.isArray(friends) && friends.find((friend) => friend._id === friendId);
+
+  const isSelf = friendId === _id;
 
   const patchFriend = async () => {
     if (!_id || !token) return;
 
-    const response = await fetch(
-      `https://connectify-server-lzjj.onrender.com/users/${_id}/${friendId}`,
-      {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BASE_URL}/users/${_id}/${friendId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update friend status");
       }
-    );
-    const data = await response.json();
-    dispatch(setFriends({ friends: data }));
+
+      const data = await response.json();
+      dispatch(setFriends({ friends: data }));
+    } catch (error) {
+      console.error("Error updating friend status:", error);
+    }
   };
 
   return (
@@ -79,7 +90,7 @@ const Friend = ({
           </Typography>
         </Box>
       </FlexBetween>
-      {!isPublicView && (
+      {!isPublicView && !isSelf && (
         <IconButton
           onClick={() => patchFriend()}
           sx={{ backgroundColor: primaryLight, p: "0.6rem" }}
@@ -96,18 +107,11 @@ const Friend = ({
 };
 
 Friend.propTypes = {
-  friendId: PropTypes.string,
+  friendId: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   subtitle: PropTypes.string,
   userPicturePath: PropTypes.string,
   isPublicView: PropTypes.bool,
-};
-
-Friend.defaultProps = {
-  friendId: "",
-  subtitle: "",
-  userPicturePath: "",
-  isPublicView: false,
 };
 
 export default Friend;

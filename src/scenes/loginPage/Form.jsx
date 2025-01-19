@@ -17,6 +17,7 @@ import Dropzone from "react-dropzone";
 import FlexBetween from "components/FlexBetween";
 import PropTypes from "prop-types";
 import { fetchWithConfig } from "../../config/api";
+import LoadingDots from "components/LoadingDots";
 
 const registerSchema = yup.object().shape({
   firstName: yup.string().required("required"),
@@ -333,36 +334,7 @@ const Form = ({ pageType, setPageType }) => {
               }}
             >
               {loading ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "4px",
-                  }}
-                >
-                  {[0, 1, 2].map((index) => (
-                    <Box
-                      key={index}
-                      component="span"
-                      sx={{
-                        width: "8px",
-                        height: "8px",
-                        borderRadius: "50%",
-                        backgroundColor: "currentColor",
-                        display: "inline-block",
-                        animation: "dotAnimation 1.4s ease-in-out infinite",
-                        animationDelay: `${index * 0.16}s`,
-                        "@keyframes dotAnimation": {
-                          "0%": { transform: "scale(0)" },
-                          "40%": { transform: "scale(1)" },
-                          "80%": { transform: "scale(0)" },
-                          "100%": { transform: "scale(0)" },
-                        },
-                      }}
-                    />
-                  ))}
-                </Box>
+                <LoadingDots color={palette.background.alt} />
               ) : isLogin ? (
                 "LOGIN"
               ) : (
