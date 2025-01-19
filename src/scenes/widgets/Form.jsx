@@ -30,6 +30,7 @@ const login = async (credentials) => {
 
 const handleFormSubmit = async (values, onSubmitProps) => {
   try {
+    console.log("Submitting login with:", values); // Log the credentials
     const loggedIn = await login({
       email: values.email,
       password: values.password,
