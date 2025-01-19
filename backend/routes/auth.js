@@ -10,9 +10,16 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
+    }
+
     console.log("Login attempt for email:", email);
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       console.log("User not found:", email);
       return res.status(401).json({ message: "Invalid credentials" });

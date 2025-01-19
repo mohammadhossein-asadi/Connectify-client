@@ -121,29 +121,35 @@ const Form = ({ pageType, setPageType }) => {
         }
       );
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error("Failed to parse server response");
+      }
+
       console.log("Login response:", response.status);
 
       if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+        throw new Error(data?.message || "Login failed");
       }
 
-      if (data.token && data.user) {
-        console.log("Login successful, storing token");
-        localStorage.setItem("token", data.token);
-
-        dispatch(
-          setLogin({
-            user: data.user,
-            token: data.token,
-          })
-        );
-
-        onSubmitProps.resetForm();
-        navigate("/home");
-      } else {
+      if (!data?.token || !data?.user) {
         throw new Error("Invalid response from server");
       }
+
+      console.log("Login successful, storing token");
+      localStorage.setItem("token", data.token);
+
+      dispatch(
+        setLogin({
+          user: data.user,
+          token: data.token,
+        })
+      );
+
+      onSubmitProps.resetForm();
+      navigate("/home");
     } catch (error) {
       console.error("Login error:", error.message);
       setError(error.message || "Login failed. Please try again.");
