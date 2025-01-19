@@ -96,7 +96,6 @@ const PublicPostsWidget = () => {
 
   const fetchPosts = async () => {
     const token = localStorage.getItem("token");
-    console.log("Token retrieved:", token);
     try {
       const response = await fetch(
         "https://connectify-dn5y.onrender.com/posts",

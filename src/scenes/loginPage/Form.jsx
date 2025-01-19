@@ -109,6 +109,9 @@ const Form = ({ pageType, setPageType }) => {
       const data = await fetchWithConfig("/auth/login", {
         method: "POST",
         body: JSON.stringify(values),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       if (data.user) {
@@ -123,7 +126,7 @@ const Form = ({ pageType, setPageType }) => {
         navigate("/home");
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Login error:", error);
       setError(error.message || "Network error. Please try again later.");
     } finally {
       setLoading(false);
