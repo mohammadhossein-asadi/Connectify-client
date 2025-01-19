@@ -1,6 +1,8 @@
 # Logs
 logs
-*.env 
+*.env
+*.Env
+*.ENV 
 *.log
 npm-debug.log*
 yarn-debug.log*
