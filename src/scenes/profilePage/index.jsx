@@ -18,7 +18,7 @@ const ProfilePage = () => {
 
   const getUser = async () => {
     const response = await fetch(
-      `https://connectify-dn5y.onrender.com/users/${userId}`,
+      `https://connectify-server-lzjj.onrender.com/users/${userId}`,
       {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },

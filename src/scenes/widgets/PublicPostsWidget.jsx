@@ -98,7 +98,7 @@ const PublicPostsWidget = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        "https://connectify-dn5y.onrender.com/posts",
+        "https://connectify-server-lzjj.onrender.com/posts",
         {
           method: "GET",
           headers: {

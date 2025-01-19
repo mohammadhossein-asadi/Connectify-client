@@ -17,7 +17,7 @@ export default defineConfig({
         target:
           process.env.NODE_ENV === "development"
             ? "http://localhost:3001"
-            : "https://connectify-dn5y.onrender.com",
+            : "https://connectify-server-lzjj.onrender.com",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),

@@ -33,7 +33,7 @@ const Friend = ({
     if (!_id || !token) return;
 
     const response = await fetch(
-      `https://connectify-dn5y.onrender.com/users/${_id}/${friendId}`,
+      `https://connectify-server-lzjj.onrender.com/users/${_id}/${friendId}`,
       {
         method: "PATCH",
         headers: {

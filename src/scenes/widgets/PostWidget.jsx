@@ -40,7 +40,7 @@ const PostWidget = ({
 
   const patchLike = async () => {
     const response = await fetch(
-      `https://connectify-dn5y.onrender.com/posts/${postId}/like`,
+      `https://connectify-server-lzjj.onrender.com/posts/${postId}/like`,
       {
         method: "PATCH",
         headers: {

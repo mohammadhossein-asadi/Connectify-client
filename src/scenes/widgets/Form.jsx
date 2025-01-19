@@ -1,7 +1,7 @@
 const login = async (credentials) => {
   try {
     const response = await fetch(
-      "https://connectify-dn5y.onrender.com/auth/login",
+      "https://connectify-server-lzjj.onrender.com/auth/login",
       {
         method: "POST",
         headers: {

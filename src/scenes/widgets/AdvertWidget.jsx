@@ -17,7 +17,7 @@ const AdvertWidget = () => {
         <Typography color={medium}>Create Ad</Typography>
       </FlexBetween>
       <img
-        src="https://connectify-dn5y.onrender.com/assets/info4.jpeg"
+        src="https://connectify-server-lzjj.onrender.com/assets/info4.jpeg"
         alt="advert"
         width={"100%"}
         height={"auto"}
