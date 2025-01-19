@@ -112,6 +112,7 @@ const Form = ({ pageType, setPageType }) => {
       });
 
       if (data.user) {
+        localStorage.setItem("token", data.token);
         dispatch(
           setLogin({
             user: data.user,
