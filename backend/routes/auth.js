@@ -1,6 +1,9 @@
 import express from "express";
 import User from "../models/User.js"; // Adjust the import based on your structure
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
 

@@ -85,7 +85,7 @@ const Form = ({ pageType, setPageType }) => {
         formData.append("picturePath", values.picture.name);
       }
 
-      const data = await fetchWithConfig("/auth/register", {
+      await fetchWithConfig("/auth/register", {
         method: "POST",
         headers: {}, // Let FormData set its own headers
         body: formData,
