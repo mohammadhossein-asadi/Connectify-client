@@ -18,10 +18,16 @@ export const fetchWithConfig = async (endpoint, options = {}) => {
       ...options.headers,
     },
     credentials: API_CONFIG.credentials,
+    mode: "cors",
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    let error;
+    try {
+      error = await response.json();
+    } catch (e) {
+      throw new Error("Network response was not ok");
+    }
     throw new Error(error.message || "API request failed");
   }
 

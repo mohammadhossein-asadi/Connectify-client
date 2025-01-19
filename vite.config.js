@@ -14,15 +14,13 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://connectify-server-six.vercel.app",
+        target:
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3001"
+            : "https://connectify-server-six.vercel.app",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
-        configure: (proxy) => {
-          proxy.on("error", (err) => {
-            console.error("Proxy error:", err);
-          });
-        },
       },
     },
   },
