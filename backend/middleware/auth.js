@@ -13,7 +13,10 @@ export const verifyToken = async (req, res, next) => {
     let token = req.header("Authorization");
 
     if (!token) {
-      return res.status(403).send("Access Denied");
+      console.log("No token provided");
+      return res
+        .status(403)
+        .json({ message: "Access Denied - No token provided" });
     }
 
     if (token.startsWith("Bearer ")) {
@@ -22,14 +25,15 @@ export const verifyToken = async (req, res, next) => {
 
     try {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
+      console.log("Token verified:", verified);
       req.user = verified;
       next();
     } catch (jwtError) {
-      console.error("JWT Verification failed:", jwtError);
-      return res.status(401).json({ error: "Invalid token" });
+      console.error("JWT Verification failed:", jwtError.message);
+      return res.status(401).json({ message: "Invalid or expired token" });
     }
   } catch (err) {
-    console.error("Auth middleware error:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Auth middleware error:", err.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

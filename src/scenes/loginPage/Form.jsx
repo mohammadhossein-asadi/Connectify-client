@@ -106,28 +106,32 @@ const Form = ({ pageType, setPageType }) => {
       setError("");
       setLoading(true);
 
+      console.log("Attempting login with:", values.email);
+
       const response = await fetch(
         `${import.meta.env.VITE_APP_BASE_URL}/auth/login`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify(values),
+          credentials: "include",
         }
       );
 
       const data = await response.json();
+      console.log("Login response:", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
 
       if (data.token && data.user) {
-        // Store token in localStorage
+        console.log("Login successful, storing token");
         localStorage.setItem("token", data.token);
 
-        // Update Redux state
         dispatch(
           setLogin({
             user: data.user,
@@ -141,7 +145,7 @@ const Form = ({ pageType, setPageType }) => {
         throw new Error("Invalid response from server");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error:", error.message);
       setError(error.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
